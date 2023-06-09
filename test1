@@ -1,0 +1,483 @@
+-- dont touch below pls
+
+local PERF = Settings["Performance"]
+
+if not game:IsLoaded() then game.Loaded:Wait() end
+local Lib = require(game:GetService("ReplicatedStorage"):WaitForChild("Framework"):WaitForChild("Library"))
+repeat task.wait() until Lib.Loaded
+
+-- Gem Tracker and Time Elapsed
+local TimeElapsed = 0
+local timer = coroutine.create(function()
+local GainsOnly = false
+
+
+local ServerCheck = false
+while not ServerCheck do
+    if not game.Players.LocalPlayer.PlayerGui:FindFirstChild("__INTRO") and not game.Players.LocalPlayer.PlayerGui.Loading.Enabled then
+        ServerCheck = true
+    else
+        task.wait()
+    end
+end
+
+local Library = require(game:GetService("ReplicatedStorage").Library)
+local LibrarySave = Library.Save
+
+local Converted = {
+	["_ScreenGui"] = Instance.new("ScreenGui");
+	["_Frame"] = Instance.new("Frame");
+	["_UICorner"] = Instance.new("UICorner");
+	["_TextLabel"] = Instance.new("TextLabel");
+	["_UIStroke"] = Instance.new("UIStroke");
+	["_Frame1"] = Instance.new("Frame");
+	["_UICorner1"] = Instance.new("UICorner");
+	["_TextLabel1"] = Instance.new("TextLabel");
+	["_UIStroke1"] = Instance.new("UIStroke");
+	["_ImageLabel"] = Instance.new("ImageLabel");
+}
+
+-- Properties:
+
+Converted["_ScreenGui"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Converted["_ScreenGui"].Parent = game:GetService("CoreGui")
+
+Converted["_Frame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Converted["_Frame"].BorderSizePixel = 2
+Converted["_Frame"].Position = UDim2.new(0.559244519, 0, 0.10897029, 0)
+Converted["_Frame"].Size = UDim2.new(0, 241, 0, 37)
+Converted["_Frame"].Parent = Converted["_ScreenGui"]
+
+Converted["_UICorner"].CornerRadius = UDim.new(0, 20)
+Converted["_UICorner"].Parent = Converted["_Frame"]
+
+Converted["_TextLabel"].Font = Enum.Font.SourceSansBold
+Converted["_TextLabel"].Text = "0"
+Converted["_TextLabel"].TextColor3 = Color3.fromRGB(111.00000858306885, 229.00001674890518, 255)
+Converted["_TextLabel"].TextScaled = true
+Converted["_TextLabel"].TextSize = 39
+Converted["_TextLabel"].TextStrokeTransparency = 0
+Converted["_TextLabel"].TextWrapped = true
+Converted["_TextLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Converted["_TextLabel"].BackgroundTransparency = 1
+Converted["_TextLabel"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+Converted["_TextLabel"].BorderMode = Enum.BorderMode.Middle
+Converted["_TextLabel"].BorderSizePixel = 9
+Converted["_TextLabel"].Position = UDim2.new(0.00596883474, 0, 0, 0)
+Converted["_TextLabel"].Size = UDim2.new(0, 239, 0, 37)
+Converted["_TextLabel"].Parent = Converted["_Frame"]
+
+Converted["_UIStroke"].Thickness = 1.5
+Converted["_UIStroke"].Parent = Converted["_TextLabel"]
+
+Converted["_Frame1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Converted["_Frame1"].BorderSizePixel = 2
+Converted["_Frame1"].Position = UDim2.new(0.559244519, 0, 0.032897029, 0)
+Converted["_Frame1"].Size = UDim2.new(0, 240, 0, 31)
+Converted["_Frame1"].Parent = Converted["_ScreenGui"]
+
+Converted["_UICorner1"].CornerRadius = UDim.new(0, 10)
+Converted["_UICorner1"].Parent = Converted["_Frame1"]
+
+Converted["_TextLabel1"].Font = Enum.Font.SourceSansBold
+Converted["_TextLabel1"].Text = "0"
+Converted["_TextLabel1"].TextColor3 = Color3.fromRGB(111.00000858306885, 229.00001674890518, 255)
+Converted["_TextLabel1"].TextSize = 29
+Converted["_TextLabel1"].TextStrokeTransparency = 0
+Converted["_TextLabel1"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Converted["_TextLabel1"].BackgroundTransparency = 1
+Converted["_TextLabel1"].BorderColor3 = Color3.fromRGB(0, 0, 0)
+Converted["_TextLabel1"].BorderMode = Enum.BorderMode.Middle
+Converted["_TextLabel1"].BorderSizePixel = 9
+Converted["_TextLabel1"].Position = UDim2.new(0.0478874973, 0, 0, 0)
+Converted["_TextLabel1"].Size = UDim2.new(0, 234, 0, 30)
+Converted["_TextLabel1"].Parent = Converted["_Frame1"]
+
+Converted["_UIStroke1"].Thickness = 2
+Converted["_UIStroke1"].Parent = Converted["_TextLabel1"]
+
+Converted["_ImageLabel"].Image = "http://www.roblox.com/asset/?id=5556687871"
+Converted["_ImageLabel"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Converted["_ImageLabel"].BackgroundTransparency = 1
+Converted["_ImageLabel"].Position = UDim2.new(0.773832202, 0, -0.351350844, 0)
+Converted["_ImageLabel"].Size = UDim2.new(0, 53, 0, 53)
+Converted["_ImageLabel"].Parent = Converted["_Frame1"]
+
+local GemCount = LibrarySave.Get().Diamonds
+local LastGems = 0
+local function CalculateGemDifference(gems)
+    if GainsOnly then
+        if gems < LastGems then
+            gems = LastGems
+        end
+    end
+    local formatted = tostring(gems)
+    while true do
+        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+        if (k==0) then
+            break
+        end
+    end
+    LastGems = gems
+    return formatted
+end
+
+-- Services 
+local RS = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- PSX Libraries 
+local Library = RS:WaitForChild("Library")
+local ClientModule = Library:WaitForChild("Client")
+local Directory = require(Library:WaitForChild("Directory"))
+
+local Network = require(ClientModule:WaitForChild("Network"))
+local Save = require(ClientModule:WaitForChild("Save"))
+local WorldCmds = require(ClientModule:WaitForChild("WorldCmds"))
+local PetCmds = require(ClientModule:WaitForChild("PetCmds"))
+local ServerBoosts = require(ClientModule:WaitForChild("ServerBoosts"))
+
+-- Anti AFK
+for _,v in pairs(getconnections(LocalPlayer.Idled)) do
+    v:Disable()
+end
+
+do -- Patching/Hooking
+    if (not getgenv().hooked) then
+        hookfunction(debug.getupvalue(Network.Fire, 1) , function(...) return true end)
+        hookfunction(debug.getupvalue(Network.Invoke, 1) , function(...) return true end)
+        getgenv().hooked = true
+    end
+
+    local Blunder = require(RS:FindFirstChild("BlunderList", true))
+    local OldGet = Blunder.getAndClear
+
+    setreadonly(Blunder, false)
+
+    Blunder.getAndClear = function(...)
+        local Packet = ...
+        for i,v in next, Packet.list do
+            if v.message ~= "PING" then
+                table.remove(Packet.list, i)
+            end
+        end
+        return OldGet(Packet)
+    end
+
+    local Audio = require(RS:WaitForChild("Library"):WaitForChild("Audio"))
+    hookfunction(Audio.Play, function(...)
+        return {
+            Play = function() end,
+            Stop = function() end,
+            IsPlaying = function() return false end
+        }
+    end)
+
+    print("Hooked")
+end
+
+do -- Performance
+    setfpscap(PERF["FPS Cap"] or 15)
+    game:GetService("RunService"):Set3dRenderingEnabled(not PERF["Disable Rendering"])
+    if PERF["Downgraded Quality"] then
+        local lighting = game.Lighting
+        lighting.GlobalShadows = false
+        lighting.FogStart = 0
+        lighting.FogEnd = 0
+        lighting.Brightness = 0
+        settings().Rendering.QualityLevel = "Level01"
+
+        for _,v in pairs(game:GetDescendants()) do
+            if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+                v.Material = "Plastic"
+                v.Reflectance = 0
+            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Lifetime = NumberRange.new(0)
+            elseif v:IsA("Explosion") then
+                v.BlastPressure = 1
+                v.BlastRadius = 1
+            elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
+                v.Enabled = false
+            elseif v:IsA("MeshPart") then
+                v.Material = "Plastic"
+                v.Reflectance = 0
+            end
+        end
+
+        for _,e in pairs(lighting:GetChildren()) do
+            if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+                e.Enabled = false
+            end
+        end
+    end
+end
+
+do -- Collection
+    coroutine.wrap(function() while task.wait(0.1) do
+        -- // Lootbags
+        for _,v in pairs(workspace["__THINGS"].Lootbags:GetChildren()) do
+            Network.Fire("Collect Lootbag", v:GetAttribute("ID"), v.CFrame.p)
+        end
+
+        -- // Orbs
+        local orbs = workspace["__THINGS"].Orbs:GetChildren()
+        for i,v in pairs(orbs) do orbs[i] = v.Name end
+        if #orbs > 0 and orbs[1] ~= nil then
+            Network.Fire("Claim Orbs", orbs)
+        end
+
+        -- // Gifts
+        for _,v in pairs(LocalPlayer.PlayerGui.FreeGifts.Frame.Container.Gifts:GetDescendants()) do
+            if v.ClassName == "TextLabel" and v.Text == "Redeem!" then
+                local giftName = v.Parent.Name
+                local number = string.match(giftName, "%d+")
+                Network.Invoke("Redeem Free Gift", tonumber(number))
+            end
+        end
+    end end)()
+
+    coroutine.wrap(function() while task.wait(10) do
+        useServerBoost("Triple Damage")
+        useBoost("Triple Damage")
+    end end)()
+end
+
+local function shuffleTable(tbl)
+    for i = #tbl, 2, -1 do local j = math.random(i) tbl[i], tbl[j] = tbl[j], tbl[i] end 
+    return tbl 
+end
+
+function useBoost(boost)
+    if Save.Get().Boosts[boost] and Save.Get().Boosts[boost] > 300 then return end
+
+    if Save.Get().BoostsInventory[boost] then
+        Network.Fire("Activate Boost", boost)
+    end
+end
+
+function useServerBoost(boost)
+    local active = ServerBoosts.GetActiveBoosts()
+
+    if active[boost] and active[boost]["totalTimeLeft"] > 300 then return end
+
+    if Save.Get().BoostsInventory[boost] > 20 then
+        Network.Fire("Activate Server Boost", boost)
+    end
+end
+
+function getOrangeCount()
+    local boosts = LocalPlayer.PlayerGui.Main.Boosts
+    return boosts:FindFirstChild("Orange") and tonumber(boosts.Orange.TimeLeft.Text:match("%d+")) or 0
+end
+
+function getEquippedPets()
+    local pets = PetCmds.GetEquipped()
+    for i,v in pairs(pets) do pets[i] = v.uid end
+    return pets
+end
+
+function farmCoin(coinId, petUIDs)
+    local pets = (petUIDs == nil and getEquippedPets()) or (typeof(petUIDs) ~= "table" and { petUIDs }) or petUIDs
+    Network.Invoke("Join Coin", coinId, pets)
+    for _,pet in pairs(pets) do
+        Network.Fire("Farm Coin", coinId, pet)
+    end
+end
+
+function farmFruits()
+    local function isFruitValid(coinObj)
+        return Directory.Coins[coinObj.n].breakSound == "fruit"
+    end
+
+    local function GetFruits()
+        local fruits = {}
+        for i,v in pairs(Network.Invoke("Get Coins")) do
+            if isFruitValid(v) and WorldCmds.HasArea(v.a) then
+                v.id = i
+                table.insert(fruits, v)
+            end
+        end
+        return fruits
+    end
+
+    local function GetCoinsInPV()
+        local coins = {}
+        for i,v in pairs(Network.Invoke("Get Coins")) do
+            if v.a == "Pixel Vault" then 
+                v.id = i
+                table.insert(coins, v)
+            end
+        end
+        table.sort(coins, function(a, b) return a.h < b.h end)
+        return coins
+    end
+
+    local function GetAllInPV()
+        local f = GetFruits()
+        for _,v in pairs(GetCoinsInPV()) do
+            if v ~= nil then table.insert(f, v) end
+        end
+        return f
+    end
+
+    if WorldCmds.HasLoaded() and WorldCmds.Get() ~= "Pixel" then
+        WorldCmds.Load("Pixel")
+    end
+
+    if WorldCmds.HasLoaded() then
+        local areaTeleport = WorldCmds.GetMap().Teleports:FindFirstChild("Pixel Vault")
+		if areaTeleport then
+                 print("a")
+		    if game.Workspace:FindFirstChild("plat") then game.Workspace.plat:Destroy() end
+local p = Instance.new("Part") 
+p.Anchored = true
+p.Name = "plat"
+p.Position = Vector3.new(3587.95581, -40.5483723, 2457.21045)
+p.Size = Vector3.new(20, 1, 20)
+p.Parent = game.Workspace
+local gui = Instance.new("SurfaceGui")
+gui.Parent = p
+gui.Face = Enum.NormalId.Top
+local textLabel = Instance.new("TextLabel")
+textLabel.Text = "Kelixbobobo Farming Fruit"
+textLabel.Size = UDim2.new(1, 0, 1, 0)
+textLabel.BackgroundColor3 = Color3.new(0, 1, 0)
+textLabel.TextColor3 = Color3.new(0, 0, 0)
+textLabel.FontSize = Enum.FontSize.Size12
+textLabel.Parent = gui
+textLabel.TextScaled = true
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3587.95581, -32.5483723, 2457.21045)
+		end
+    end
+
+    local fruits = GetAllInPV()
+    if #fruits == 0 then return end
+    for _,pet in pairs(getEquippedPets()) do
+        if #fruits == 0 then return end
+        local c = fruits[1]
+        task.spawn(farmCoin, c.id, { pet })
+        table.remove(fruits, 1)
+        task.wait(Settings["Farm Speed"])
+    end
+end
+
+function farmMystic()
+    local function GetCoinsInMM()
+        local coins = {}
+        for i,v in pairs(Network.Invoke("Get Coins")) do
+            if v.a == "Mystic Mine" and v.n ~= "Mystic Mine Diamond Mine Giant Chest" then
+                v.id = i
+                table.insert(coins, v)
+            end
+        end
+        --return shuffleTable(coins)
+        table.sort(coins, function(a, b) return (a.b and a.b.l[1].m or 1) > (b.b and b.b.l[1].m or 1) end)
+        return coins
+    end
+
+    if WorldCmds.HasLoaded() and WorldCmds.Get() ~= "Diamond Mine" then
+        WorldCmds.Load("Diamond Mine")
+    end
+
+    if WorldCmds.HasLoaded() then
+        local areaTeleport = WorldCmds.GetMap().Teleports:FindFirstChild("Mystic Mine")
+		if areaTeleport then
+                 print("a")
+		    if game.Workspace:FindFirstChild("plat") then game.Workspace.plat:Destroy() end
+local p = Instance.new("Part") 
+p.Anchored = true
+p.Name = "plat"
+p.Position = Vector3.new(9043.19140625, -38.66098690032959, 2424.636474609375)
+p.Size = Vector3.new(20, 1, 20)
+p.Parent = game.Workspace
+local gui = Instance.new("SurfaceGui")
+gui.Parent = p
+gui.Face = Enum.NormalId.Top
+local textLabel = Instance.new("TextLabel")
+textLabel.Text = "Kelixbobobobobo"
+textLabel.Size = UDim2.new(1, 0, 1, 0)
+textLabel.BackgroundColor3 = Color3.new(1, 0, 0)
+textLabel.TextColor3 = Color3.new(0, 1, 0)
+textLabel.FontSize = Enum.FontSize.Size12
+textLabel.Parent = gui
+textLabel.TextScaled = true
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(9043.19141, -34.3321552, 2424.63647, -0.938255966, 7.68024719e-08, 0.345941782, 8.24376656e-08, 1, 1.57588176e-09, -0.345941782, 2.99972136e-08, -0.938255966)
+		end
+    end
+
+    local coins = GetCoinsInMM()
+    if #coins == 0 then return end
+    local pets = Settings["Pet Sending"] == "Single" and getEquippedPets() or {getEquippedPets()}
+    for _,pet in pairs(pets) do
+        if #coins == 0 then return end
+        local c = coins[1]
+        if not c then
+            table.remove(coins, 1)
+            continue
+        end
+        task.spawn(farmCoin, c.id, typeof(pet) == "table" and pet or { pet })
+        table.remove(coins, 1)
+        task.wait(Settings["Farm Speed"])
+    end
+end
+
+do -- Main
+    coroutine.wrap(function()
+        while task.wait() do
+            if getOrangeCount() < Settings["Minimum Oranges"] then
+                repeat
+                    farmFruits()
+                    task.wait(Settings["Farm Speed"] or 0.04)
+                until getOrangeCount() >= Settings["Maximum Oranges"]
+            else
+                repeat
+                    farmMystic()
+                    task.wait(Settings["Farm Speed"] or 0.04)
+                until getOrangeCount() < Settings["Minimum Oranges"]
+            end
+        end
+    end)()
+end
+
+while task.wait(1) do
+    Converted["_TextLabel1"].Text = CalculateGemDifference(LibrarySave.Get().Diamonds-GemCount)
+    TimeElapsed = TimeElapsed + 1 Converted["_TextLabel"].Text = "Time Elapsed: " .. TimeElapsed .. "s"
+    end
+end)
+coroutine.resume(timer)
+-- Server Hop
+
+local Players = game:GetService("Players")
+local API_URL = string.format("https://games.roblox.com/v1/games/%s/servers/Public?sortOrder=Asc&limit=100", tostring(game.PlaceId))
+local Player = Players.LocalPlayer
+local TeleportService = game:GetService("TeleportService")
+local Http = game:GetService("HttpService")
+
+local function ServerHop()
+    function GetServers(cursor)
+        cursor = cursor and "&cursor=" .. cursor or ""
+        return Http:JSONDecode(game:HttpGet(API_URL .. cursor))
+    end
+
+    local cursor = nil
+    local teleported = false
+    while not teleported do 
+        local servers = GetServers(cursor)
+        for i,v in next, servers.data do
+            if v.playing and v.playing < game.Players.MaxPlayers and v.id ~= game.JobId then
+                local success ,_ = pcall(TeleportService.TeleportToPlaceInstance, TeleportService, game.PlaceId, v.id, Player)
+                if success then teleported = true break end -- Successfully teleported, break loop
+            end
+        end
+
+        cursor = servers.nextPageCursor
+        if teleported or not cursor then break end
+        -- wait so no spam roblox api
+        wait(0.1)
+    end
+    if teleported then print("Server Hopped") end
+end
+while task.wait(60) do
+    ServerHop()
+end
